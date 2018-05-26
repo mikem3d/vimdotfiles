@@ -4,22 +4,29 @@ set backup
 set backupdir=~/tmp
 
 set t_Co=256
-" colors zenburn"
-colors lucius
+colors molokai
 
 " don't make it look like there are line breaks where there aren't:"
 set nowrap
 
 set hlsearch
 
-set tabstop=4
-set shiftwidth=4
+filetype plugin indent on
+" On pressing tab, insert 2 spaces
+set expandtab
+" show existing tab with 2 spaces width
+set tabstop=2
+set softtabstop=2
+" when indenting with '>', use 2 spaces width
+set shiftwidth=2
+
 set autoindent
 set smartindent
 set showmatch
-set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 set laststatus=2
 let mapleader = ","
+set number
 
 filetype plugin on
 
@@ -33,7 +40,7 @@ set winminheight=0
 set foldmethod=marker
 nmap <F2> 0v/{<CR>%zf
 
-" make tab in normal mode go to next file, shfit tab previous"
+" make tab in normal mode go to next file, shift tab previous"
 nmap <tab> <Ctrl-W><Down>
 nmap <s-tab> :prev<CR>
 nnoremap <C-N> :next<CR>
@@ -87,11 +94,61 @@ set dir=~/tmp
 " PLUG "
 nnoremap <silent> <M-j> :MultipleCursorsFind <C-R>/<CR>
 vnoremap <silent> <M-j> :MultipleCursorsFind <C-R>/<CR>
+noremap <M-Up> [{
+noremap <M-Down> }]
+
+nmap <silent> t<C-f> :TestFile<CR>
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'kien/ctrlp.vim'
-Plug 'posva/vim-vue'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'mattn/emmet-vim'
+Plug 'mattn/webapi-vim'
+Plug 'prettier/vim-prettier'
+Plug 'janko-m/vim-test'
+Plug 'flowtype/vim-flow'
+Plug 'jiangmiao/auto-pairs'
+Plug 'epilande/vim-es2015-snippets'
+Plug 'epilande/vim-react-snippets'
+Plug 'SirVer/ultisnips'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'w0rp/ale'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf.vim'
 
 call plug#end()
+
+if executable('ag')
+  " Use ag over grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+
+  " ag is fast enough that CtrlP doesn't need to cache
+  let g:ctrlp_use_caching = 0
+endif
+
+augroup myvimrc
+  autocmd!
+  autocmd QuickFixCmdPost [^l]* cwindow
+  autocmd QuickFixCmdPost l*    lwindow
+augroup END
+
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:prettier#autoformat = 0
+autocmd BufWritePre *.js,*.json,*.css,*.scss,*.less,*.graphql PrettierAsync
+nnoremap <Bslash> :Ag 
+
+nmap <silent> <S-Left> <Plug>(ale_previous_wrap)
+nmap <silent> <S-Right> <Plug>(ale_next_wrap)
+
+let g:ale_fixers = {
+\  'javascript': ['eslint'],
+\}
+
+nnoremap <C-S-H> :ALEfix<cr>
+let g:fixmyjs_engine = 'eslint'
+let g:ale_fix_on_save = 1
