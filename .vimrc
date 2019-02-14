@@ -67,10 +67,6 @@ noremap <space> <C-f>
 " insert mode: Ctrl-Z is undo"
 imap <C-Z> <Esc>ui
 
-" make tab in visual mode indent, shift-tab dedent"
-vmap <tab> >gv
-vmap <s-tab> <gv
-
 inoremap ,, <ESC>
 " nnoremap <leader>w <C-w>v<C-w>l"
 nmap <silent> <Leader>w :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<cr>:wincmd h<cr>:set scb<cr>
@@ -107,8 +103,6 @@ Plug 'mxw/vim-jsx'
 Plug 'mattn/emmet-vim'
 Plug 'mattn/webapi-vim'
 Plug 'prettier/vim-prettier'
-Plug 'janko-m/vim-test'
-Plug 'flowtype/vim-flow'
 Plug 'jiangmiao/auto-pairs'
 Plug 'epilande/vim-es2015-snippets'
 Plug 'epilande/vim-react-snippets'
@@ -117,6 +111,7 @@ Plug 'ctrlpvim/ctrlp.vim'
 Plug 'w0rp/ale'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
+Plug 'heavenshell/vim-jsdoc'
 
 call plug#end()
 
@@ -138,6 +133,8 @@ augroup myvimrc
 augroup END
 
 let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 let g:prettier#autoformat = 0
 autocmd BufWritePre *.js,*.json,*.css,*.scss,*.less,*.graphql PrettierAsync
 nnoremap <Bslash> :Ag 
@@ -152,3 +149,8 @@ let g:ale_fixers = {
 nnoremap <C-S-H> :ALEfix<cr>
 let g:fixmyjs_engine = 'eslint'
 let g:ale_fix_on_save = 1
+
+nmap <silent> <C-l> <Plug>(jsdoc)
+let g:jsdoc_enable_es6 = 1
+let g:jsdoc_allow_input_prompt = 1
+let g:jsdoc_input_description = 1
