@@ -1,52 +1,58 @@
-set nocompatible  " Use Vim defaults (much better!)"
-set bs=indent,eol,start   " allow backspacing over everything in insert mode"
+" tlack's vimrc
+"
+
+set nocompatible  " Use Vim defaults (much better!)
+set bs=indent,eol,start   " allow backspacing over everything in insert mode
 set backup   
-set backupdir=~/tmp
+
+"syntax highlighting on, when the terminal has colors
+" Also switch on highlighting the last used search pattern.
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+endif
+
+"if &term=="xterm"
+"     set t_Co=8
+"     set t_Sb=^[[4%dm
+"     set t_Sf=^[[3%dm
+"endif
 
 set t_Co=256
-colors molokai
+" colors zenburn
+colors lucius
 
-" don't make it look like there are line breaks where there aren't:"
+" don't make it look like there are line breaks where there aren't:
 set nowrap
 
-set hlsearch
-
-filetype plugin indent on
-" On pressing tab, insert 2 spaces
-set expandtab
-" show existing tab with 2 spaces width
 set tabstop=2
-set softtabstop=2
-" when indenting with '>', use 2 spaces width
 set shiftwidth=2
-
 set autoindent
 set smartindent
 set showmatch
-set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
+set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]
 set laststatus=2
 let mapleader = ","
-set number
 
 filetype plugin on
 
-" automatically change to the folder of the file you're editing"
+" automatically change to the folder of the file you're editing
 set autochdir
 
-" maximize windows"
+" maximize windows
 set winheight=9999
 set winminheight=0
 
 set foldmethod=marker
 nmap <F2> 0v/{<CR>%zf
 
-" make tab in normal mode go to next file, shift tab previous"
-nmap <tab> <Ctrl-W><Down>
-nmap <s-tab> :prev<CR>
+" make tab in normal mode go to next file, shfit tab previous
+nmap <Tab> <C-W><Down>
+nmap <S-Tab> <C-W><Up>
 nnoremap <C-N> :next<CR>
 nnoremap <C-P> :prev<CR>
 
-" have CTRL-J reformat the current paragraph (or selected text if there is any):"
+" have CTRL-J reformat the current paragraph (or selected text if there is any):
 nnoremap <C-J> gqap 
 vnoremap <C-J> gq
 inoremap <C-J> <Esc>gqi
@@ -60,97 +66,84 @@ map  <C-A> ^
 imap <C-A> <Esc>^i
 map! <C-E> <End>
 imap <C-K> <Esc>:dl<CR>i
-
-" normal mode space scrolls page"
+" fuzzyfinder buffer search - ctrl-b
+map <C-B> :FufBuffer<CR>
+" normal mode space scrolls page
 noremap <space> <C-f> 
-
-" insert mode: Ctrl-Z is undo"
+" insert mode: Ctrl-Z is undo
 imap <C-Z> <Esc>ui
-
+" make tab in visual mode indent, shift-tab dedent
+vmap <tab> >gv
+vmap <s-tab> <gv
 inoremap ,, <ESC>
-" nnoremap <leader>w <C-w>v<C-w>l"
+" nnoremap <leader>w <C-w>v<C-w>l
 nmap <silent> <Leader>w :vsplit<bar>wincmd l<bar>exe "norm! Ljz<c-v><cr>"<cr>:set scb<cr>:wincmd h<cr>:set scb<cr>
-nmap <Leader>r :w<CR>:!sh `sed -n 's/.* run: \(.*\)/\1/p' %`<CR>
+
+map <ESC>[1;5A <C-Up>
+map <ESC>[1;5B <C-Down>
+map! <ESC>[1;5A <C-Up>
+map! <ESC>[1;5B <C-Down>
+nnoremap <silent> <C-Right> <c-w>l
+nnoremap <silent> <C-Left> <c-w>h
+nnoremap <silent> <C-Up> <c-w>k
+nnoremap <silent> <C-Down> <c-w>j
+
+" run as q script
+nmap <Leader>q :w<CR>:!rlwrap ~/q/w32/q %<CR>
+" run test.sh with this filename as arg
+nmap <Leader>t :w<CR>:!sh test.sh % \|\| sh ../test.sh %<CR>
+" run start.sh with this filename as arg
+nmap <Leader>s :w<CR>:!sh start.sh % \|\| sh ../start.sh %<CR>
+" find run command in comment, then call with filename as arg
+nmap <Leader>r :w<CR>:!sh `sed -n 's/.* RUN:\(.*\)$/\1/p' %`<CR>
 
 set wildmenu
 set wildmode=list:longest,full
 
-" When editing a file, always jump to the last known cursor position."
-"  Don't do it when the position is invalid or when inside an event handler"
-"  (happens when dropping a file on gvim)."
+" When editing a file, always jump to the last known cursor position.
+" " Don't do it when the position is invalid or when inside an event handler
+" " (happens when dropping a file on gvim).
 autocmd BufReadPost *
 	\ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal g`\"" |
   \ endif
 
-"Store swapfiles in tmp"
-set swapfile
-set dir=~/tmp
+" NERDTree
+map <C-n> :NERDTreeToggle<CR>
+" disable fancy unicode directory UI - breaks some vims
+let g:NERDTreeDirArrows=0 
+let g:NERDTreeTabsOpenOnGUIStartup=0
 
-" PLUG "
-nnoremap <silent> <M-j> :MultipleCursorsFind <C-R>/<CR>
-vnoremap <silent> <M-j> :MultipleCursorsFind <C-R>/<CR>
-noremap <M-Up> [{
-noremap <M-Down> }]
 
-nmap <silent> t<C-f> :TestFile<CR>
+    autocmd StdinReadPre * let s:std_in=1
+		autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
-call plug#begin('~/.vim/plugged')
 
-Plug 'terryma/vim-multiple-cursors'
-Plug 'pangloss/vim-javascript'
-Plug 'mxw/vim-jsx'
-Plug 'mattn/emmet-vim'
-Plug 'mattn/webapi-vim'
-Plug 'prettier/vim-prettier'
-Plug 'jiangmiao/auto-pairs'
-Plug 'epilande/vim-es2015-snippets'
-Plug 'epilande/vim-react-snippets'
-Plug 'SirVer/ultisnips'
-Plug 'ctrlpvim/ctrlp.vim'
-Plug 'w0rp/ale'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-Plug 'heavenshell/vim-jsdoc'
+" pop: coreytabs
+autocmd BufRead,BufNewFile *pop*/*php set expandtab tabstop=4 shiftwidth=4
+autocmd BufRead,BufNewFile *.q set nobackup nowritebackup noswapfile
+autocmd BufRead,BufNewFile *.k        setfiletype k
+autocmd BufRead,BufNewFile *.q        setfiletype q
+autocmd BufRead,BufNewFile *.s        setfiletype sql
+autocmd BufRead,BufNewFile *.xxl      setfiletype xxl
 
-call plug#end()
-
-if executable('ag')
-  " Use ag over grep
-  set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
-
-  " ag is fast enough that CtrlP doesn't need to cache
-  let g:ctrlp_use_caching = 0
-endif
-
-augroup myvimrc
-  autocmd!
-  autocmd QuickFixCmdPost [^l]* cwindow
-  autocmd QuickFixCmdPost l*    lwindow
-augroup END
-
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<tab>"
-let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
-let g:prettier#autoformat = 0
-autocmd BufWritePre *.js,*.json,*.css,*.scss,*.less,*.graphql PrettierAsync
-nnoremap <Bslash> :Ag 
-
-nmap <silent> <S-Left> <Plug>(ale_previous_wrap)
-nmap <silent> <S-Right> <Plug>(ale_next_wrap)
-
-let g:ale_fixers = {
-\  'javascript': ['eslint'],
-\}
-
-nnoremap <C-S-H> :ALEfix<cr>
-let g:fixmyjs_engine = 'eslint'
+let g:ale_fixers = {}
+let g:ale_fixers.javascript = ['prettier', 'eslint']
 let g:ale_fix_on_save = 1
+let g:mix_format_on_save = 1
 
-nmap <silent> <C-l> <Plug>(jsdoc)
-let g:jsdoc_enable_es6 = 1
-let g:jsdoc_allow_input_prompt = 1
-let g:jsdoc_input_description = 1
+let g:ale_linters = {}
+let g:ale_linters.elixir = ['elixir-ls']
+let g:ale_elixir_elixir_ls_release = expand("~/elixir-ls/rel")
+set completeopt=menu,menuone,preview,noselect,noinsert
+let g:ale_completion_enabled = 1
+
+"let g:ctrlp_user_command = ['.git/', 'git --git-dir=%s/.git ls-files -oc --exclude-standard']
+
+let g:ctrlp_user_command = 'fdfind --type f --color=never "" %s'
+
+nmap <silent> <S-down> <Plug>(ale_next_wrap)
+nmap <silent> <S-up> <Plug>(ale_previous_wrap)
+
+call pathogen#infect()
+
